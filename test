@@ -1,0 +1,105 @@
+// ==UserScript==
+// @name         页面增强工具：时钟、视频倍速、Bing搜索
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  在页面右上角显示悬浮时钟、控制视频播放速度的控件，以及一个调用Bing搜索的搜索框
+// @author       Kimi
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // 创建悬浮面板
+    const panel = document.createElement('div');
+    panel.style.position = 'fixed';
+    panel.style.top = '10px';
+    panel.style.right = '10px';
+    panel.style.zIndex = '999999';
+    panel.style.padding = '10px';
+    panel.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    panel.style.border = '1px solid #ccc';
+    panel.style.borderRadius = '5px';
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    panel.style.alignItems = 'flex-end';
+
+    // 添加时钟
+    const clock = document.createElement('div');
+    clock.style.marginBottom = '10px';
+    clock.style.fontSize = '16px';
+    clock.style.fontWeight = 'bold';
+    panel.appendChild(clock);
+
+    function updateClock() {
+        const now = new Date();
+        const formattedTime = now.toLocaleTimeString();
+        clock.textContent = formattedTime;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 添加视频播放速度控件
+    const speedControl = document.createElement('div');
+    speedControl.style.display = 'flex';
+    speedControl.style.alignItems = 'center';
+    speedControl.style.marginBottom = '10px';
+
+    const speedLabel = document.createElement('span');
+    speedLabel.textContent = '视频速度：';
+    speedLabel.style.marginRight = '5px';
+    speedControl.appendChild(speedLabel);
+
+    const speedInput = document.createElement('input');
+    speedInput.type = 'number';
+    speedInput.value = '1';
+    speedInput.step = '0.1';
+    speedInput.style.width = '50px';
+    speedInput.style.marginRight = '5px';
+    speedControl.appendChild(speedInput);
+
+    const applyButton = document.createElement('button');
+    applyButton.textContent = '应用';
+    applyButton.style.marginRight = '5px';
+    applyButton.addEventListener('click', () => {
+        const video = document.querySelector('video');
+        if (video) {
+            video.playbackRate = parseFloat(speedInput.value);
+        }
+    });
+    speedControl.appendChild(applyButton);
+
+    panel.appendChild(speedControl);
+
+    // 添加Bing搜索框
+    const searchBox = document.createElement('div');
+    searchBox.style.display = 'flex';
+    searchBox.style.alignItems = 'center';
+
+    const searchLabel = document.createElement('span');
+    searchLabel.textContent = 'Bing搜索：';
+    searchLabel.style.marginRight = '5px';
+    searchBox.appendChild(searchLabel);
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.style.width = '200px';
+    searchInput.style.marginRight = '5px';
+    searchBox.appendChild(searchInput);
+
+    const searchButton = document.createElement('button');
+    searchButton.textContent = '搜索';
+    searchButton.addEventListener('click', () => {
+        const query = searchInput.value;
+        if (query) {
+            window.open(`https://www.bing.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        }
+    });
+    searchBox.appendChild(searchButton);
+
+    panel.appendChild(searchBox);
+
+    // 将面板添加到页面
+    document.body.appendChild(panel);
+})();
